@@ -43,18 +43,21 @@ int main()
       hash2 += (str2[i] - 'a') * pPow[i];
       hash2 %= MOD;
     }
-
-
+    
+    vector<int> ans;
+    
     vector<int> hash1;
     for (int i = 0; i < str1.size(); i++)
     {
       hash1[i + 1] = (str1[i] - 'a') * pPow[i] + (i > 1 ? hash1[i] : 0);
       hash1[i + 1] %= MOD;
 
-      if (i >= str2.size() - 1)
-        if (hash1[i + 1] - hash1[i + 1 - str2.size()] == hash2 * pPow[])
+      if (i >= str2.size() - 1 && hash1[i + 1] - hash1[i + 1 - str2.size()] == hash2 * pPow[i - str2.size() + 1] % MOD)
+        ans.push_back(i - str2.size() + 1);
     }
-
+    
+    for (int i = 0; i < ans.size(); i++)
+      output << ans[i] << (i == ans.size() - 1 ? "/n" : " ");
   }
 }
 
