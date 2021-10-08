@@ -1,6 +1,6 @@
-#if 1
+#if 0
 
-#define DEBUG 1
+#define DEBUG 0
 
 #include <iostream>
 #include <fstream>
@@ -20,21 +20,25 @@ ostream &output = std::cout;
 #endif
 
 
-void getPrefixFunc(string &str, vector<int> &pref)
+void getZFunc(string &str, vector<int> &zFunc)
 {
-	pref.resize(str.size());
-	pref[0] = 0;
+	zFunc.resize(str.size());
+	zFunc[0] = 0;
+
+	int L = 0, R = 0;
 	for (int i = 1; i < str.size(); i++)
 	{
-		int k = pref[i - 1];
+		if (i <= R)
+			zFunc[i] = min(R - i + 1, zFunc[i - L]);
 
-		while (k > 0 && str[i] != str[k])
-			k = pref[k - 1];
+		while (i + zFunc[i] < str.size() && str[zFunc[i]] == str[i + zFunc[i]])
+			zFunc[i]++;
 
-		if (str[i] == str[k])
-			k++;
-
-		pref[i] = k;
+		if (i + zFunc[i] - 1 > R)
+		{
+			L = i;
+			R = i + zFunc[i] - 1;
+		}
 	}
 }
 
@@ -43,28 +47,40 @@ int main()
 {
 	while (runs-- > 0)
 	{
-		string str1, str2, str0;
+		string str1, str2, str12, str21;
 
 		input >> str1;
 		input >> str2;
 
-		str0 = str1 + "#" + str2;
+		if (str1 == str2)
+		{
+			output << 0 << endl;
+			return 0;
+		}
 
-		vector<int> pref;
-		getPrefixFunc(str0, pref);
 
-		bool cond = true;
-		for (int i = 0; i < str1.size() - pref[pref.size() - 1]; i++)
-			if (str2[i] != str1[pref[pref.size() - 1] + i])
+		str12 = str1 + "#" + str2;
+		str21 = str2 + "#" + str1;
+
+		vector<int> z12;
+		vector<int> z21;
+		getZFunc(str12, z12);
+		getZFunc(str21, z21);
+
+		bool cond = false;
+		int ans = 0;
+		for (int i = 0; i < str1.size() - 1; i++)
+			if (z21[str12.size() - 1 - i] == i + 1 && z12[str1.size() + 1 + i + 1] == str1.size() - i - 1)
 			{
-				cond = false;
+				ans = i + 1;
+				cond = true;
 				break;
 			}
 
 		if (cond)
-			output << str1.size() - pref[pref.size() - 1] << endl;
+			output << ans << endl;
 		else
-			output << -1 << "\n";
+			output << -1 << endl;
 	}
 
 	return 0;
